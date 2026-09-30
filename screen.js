@@ -476,10 +476,14 @@
 
   function openPluginScreen(plugin) {
     if (!plugin || !plugin.installed || !plugin.has_screen) return;
-    const screenId = plugin.nav_screen || `plugin-${plugin.id}`;
     if (typeof window.showScreen !== "function") return;
 
-    if (document.getElementById(screenId)) {
+    // feedBack mounts every plugin screen as `plugin-<id>`; a manifest's
+    // nav.screen (e.g. "practice") is not an element id, so try the host's
+    // id first and keep nav.screen only as a fallback.
+    const screenId = [`plugin-${plugin.id}`, plugin.nav_screen]
+      .find((id) => id && document.getElementById(id));
+    if (screenId) {
       window.showScreen(screenId);
       return;
     }

@@ -27,3 +27,16 @@ def test_installed_card_prefers_settings_when_clicked():
     settings_pos = src.index("if (plugin.has_settings)", src.index("function openInstalledPlugin"))
     screen_pos = src.index("else if (plugin.has_screen)", settings_pos)
     assert settings_pos < screen_pos
+
+
+
+
+def test_open_plugin_tries_host_screen_id_before_nav_screen():
+    # The host mounts plugin screens as `plugin-<id>`; nav.screen values such
+    # as "practice" are not element ids, so they must not be tried first.
+    src = (ROOT / "screen.js").read_text(encoding="utf-8")
+    body = src[src.index("function openPluginScreen(plugin)"):src.index("function openInstalledPlugin")]
+    host_pos = body.index("`plugin-${plugin.id}`")
+    nav_pos = body.index("plugin.nav_screen")
+    assert host_pos < nav_pos
+    assert "plugin.nav_screen || `plugin-${plugin.id}`" not in body
